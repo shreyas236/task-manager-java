@@ -17,7 +17,7 @@ public class TaskManager {
        System.out.println();
     }
     
-  static void delTask(ArrayList<String> tasks) {
+  static void delTask(ArrayList<String> tasks, Scanner sc) {
        if(tasks.size()==0) {
         System.out.println("No tasks to delete\n");
         return;
@@ -27,6 +27,7 @@ public class TaskManager {
 
        if(index<1 || index>tasks.size()) {
         System.out.println("Invalid task number\n");
+        return;
        }
 
        System.out.println("Deleted task " + tasks.get(index-1));
@@ -49,12 +50,13 @@ while(true) {
 
     while(true) {
         System.out.println("Enter your choice: " + "\n 1->Show all tasks" + "\n 2->Delete task" + "\n 3->Exit");
-        int ch = sc.nextInt();
+        //int ch = sc.nextInt(); --why wrong?
+        int ch = Integer.parseInt(sc.nextLine());
 
         if(ch==1) {
             showTasks(tasks);
         } else if(ch==2) {
-            delTask(tasks);
+            delTask(tasks, sc);
         } else if(ch==3){
             System.exit(0);
         } else {
