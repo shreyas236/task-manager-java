@@ -1,23 +1,32 @@
 import java.util.*;
 
+class Task {
+    String name;
+    String priority;
 
+    Task(String name, String priority) {
+        this.name=name;
+        this.priority=priority;
+    }
+}
 
 
 public class TaskManager {
 
-   static void showTasks(ArrayList<String> tasks) {
+   static void showTasks(ArrayList<Task> tasks) {
        if(tasks.size()==0) {
         System.out.println("No tasks available\n");
         return;
        }
-
+System.out.println("Here are your tasks\n");
        for(int i=0; i<tasks.size(); i++) {
-        System.out.println((i+1) + ". " + tasks.get(i));
+        Task t = tasks.get(i);
+        System.out.println((i+1) + ". " + t.name + " [" + t.priority + "]");
        }
        System.out.println();
     }
     
-  static void delTask(ArrayList<String> tasks, Scanner sc) {
+  static void delTask(ArrayList<Task> tasks, Scanner sc) {
        if(tasks.size()==0) {
         System.out.println("No tasks to delete\n");
         return;
@@ -38,14 +47,17 @@ public class TaskManager {
    public static void main(String[] args) {
     Scanner sc= new Scanner(System.in);
 
-    ArrayList<String> tasks= new ArrayList<>();
+    ArrayList<Task> tasks= new ArrayList<>();
 while(true) {
     System.out.println("Enter task (-1 to stop): ");
-    String task =sc.nextLine();
+    String taskName = sc.nextLine();
 
-    if(task.equals("-1"))  break;
+    if(taskName.equals("-1"))  break;
 
-    tasks.add(task);
+System.out.println("Enter task Priority: ");
+String priority = sc.nextLine();
+
+    tasks.add(new Task(taskName, priority));
 }
 
     while(true) {
@@ -54,6 +66,12 @@ while(true) {
         int ch = Integer.parseInt(sc.nextLine());
 
         if(ch==1) {
+              // 🔥 ADD THIS HERE
+    Collections.sort(tasks, (a, b) -> {
+        List<String> order = Arrays.asList("High", "Medium", "Low");
+        return order.indexOf(a.priority) - order.indexOf(b.priority);
+    });
+
             showTasks(tasks);
         } else if(ch==2) {
             delTask(tasks, sc);
