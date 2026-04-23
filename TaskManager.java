@@ -1,12 +1,15 @@
+import java.time.LocalDateTime;
 import java.util.*;
 
 class Task {
     String name;
     String priority;
+    LocalDateTime deadline;
 
-    Task(String name, String priority) {
+    Task(String name, String priority, LocalDateTime deadline) {
         this.name=name;
         this.priority=priority;
+        this.deadline=deadline;
     }
 }
 
@@ -18,11 +21,18 @@ public class TaskManager {
         System.out.println("No tasks available\n");
         return;
        }
-System.out.println("Here are your tasks\n");
+LocalDateTime now = LocalDateTime.now();
+    System.out.println("Here are your tasks\n");
        for(int i=0; i<tasks.size(); i++) {
         Task t = tasks.get(i);
-        System.out.println((i+1) + ". " + t.name + " [" + t.priority + "]");
+        System.out.println((i+1) + ". " + t.name + " ["+ t.priority +"]" + "Deadline: " + t.deadline);
+        if(t.deadline.isBefore(now)) {
+            System.out.println("⚠ OverDue");
+        } else {
+            System.out.println("Upcoming\n");
+        }
        }
+
        System.out.println();
     }
     
@@ -39,7 +49,7 @@ System.out.println("Here are your tasks\n");
         return;
        }
 
-       System.out.println("Deleted task " + tasks.get(index-1));
+       System.out.println("Deleted task " + tasks.get(index-1).name);
        tasks.remove(index-1);
        System.out.println();
     }
@@ -57,7 +67,12 @@ while(true) {
 System.out.println("Enter task Priority: ");
 String priority = sc.nextLine();
 
-    tasks.add(new Task(taskName, priority));
+System.out.println("Enter task DeadLine(yyyy-MM-dd HH:mm): ");
+String deadlineStr = sc.nextLine();
+
+LocalDateTime deadline = LocalDateTime.parse(deadlineStr.replace(" ","T")); //revise
+
+    tasks.add(new Task(taskName, priority, deadline));
 }
 
     while(true) {
