@@ -25,7 +25,7 @@ LocalDateTime now = LocalDateTime.now();
     System.out.println("Here are your tasks\n");
        for(int i=0; i<tasks.size(); i++) {
         Task t = tasks.get(i);
-        System.out.println((i+1) + ". " + t.name + " ["+ t.priority +"]" + "Deadline: " + t.deadline);
+        System.out.println((i+1) + ". " + t.name + " ["+ t.priority +"]" + " Deadline: " + t.deadline);
         if(t.deadline.isBefore(now)) {
             System.out.println("⚠ OverDue");
         } else {
@@ -82,11 +82,25 @@ LocalDateTime deadline = LocalDateTime.parse(deadlineStr.replace(" ","T")); //re
 
         if(ch==1) {
               // 🔥 ADD THIS HERE
-    Collections.sort(tasks, (a, b) -> {
-        List<String> order = Arrays.asList("High", "Medium", "Low");
-        return order.indexOf(a.priority) - order.indexOf(b.priority);
-    });
+Collections.sort(tasks, (a, b) -> {
+    LocalDateTime now = LocalDateTime.now();
 
+    // 🔴 1. Overdue first
+    boolean aOverdue = a.deadline.isBefore(now);
+    boolean bOverdue = b.deadline.isBefore(now);
+
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+
+    // 🟡 2. Earlier deadline first
+    if (!a.deadline.equals(b.deadline)) {
+        return a.deadline.compareTo(b.deadline);
+    }
+
+    // 🟢 3. Priority
+    List<String> order = Arrays.asList("High", "Medium", "Low");
+    return order.indexOf(a.priority) - order.indexOf(b.priority);
+});
             showTasks(tasks);
         } else if(ch==2) {
             delTask(tasks, sc);
