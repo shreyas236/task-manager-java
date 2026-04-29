@@ -1,5 +1,7 @@
 import java.time.LocalDateTime;
 import java.util.*;
+import java.io.*;
+import java.time.format.DateTimeFormatter;
 
 class Task {
     String name;
@@ -13,8 +15,50 @@ class Task {
     }
 }
 
-
 public class TaskManager {
+
+    static String normalizePriority(String p) { 
+    if(p == null || p.trim().isEmpty()) return "Low";                                 //revise
+    p = p.trim().toLowerCase();
+    return p.substring(0,1).toUpperCase() + p.substring(1);
+}
+
+    static void saveTasks(ArrayList<Task> tasks) {
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("tasks.txt"))){ 
+
+            for(Task t : tasks) {
+                writer.write(t.name + "|" + t.priority + "|" + t.deadline);
+                writer.newLine();
+            }
+            
+
+        } catch(IOException e) {
+            System.out.println("Error saving tasks");
+        }
+    }
+
+    static ArrayList<Task> loadTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+       
+        try(BufferedReader reader = new BufferedReader(new FileReader("tasks.txt"))) {
+        
+        String line;
+
+        while((line = reader.readLine())!=null) {
+          String[] parts = line.split("\\|");
+          if(parts.length < 3) continue;
+          String name = parts[0];
+          String priority = parts[1];
+          LocalDateTime deadLine = LocalDateTime.parse(parts[2]);
+
+          tasks.add(new Task(name, priority, deadLine));
+        }
+        
+        } catch(IOException e) {
+            System.out.println("No previous tasks found ");
+        }
+        return tasks;
+    }
 
    static void showTasks(ArrayList<Task> tasks) {
        if(tasks.size()==0) {
@@ -27,7 +71,7 @@ LocalDateTime now = LocalDateTime.now();
         Task t = tasks.get(i);
         System.out.println((i+1) + ". " + t.name + " ["+ t.priority +"]" + " Deadline: " + t.deadline);
         if(t.deadline.isBefore(now)) {
-            System.out.println("⚠ OverDue");
+            System.out.println("⚠ OVERDUE");
         } else {
             System.out.println("Upcoming\n");
         }
@@ -51,13 +95,14 @@ LocalDateTime now = LocalDateTime.now();
 
        System.out.println("Deleted task " + tasks.get(index-1).name);
        tasks.remove(index-1);
+       saveTasks(tasks);
        System.out.println();
     }
 
    public static void main(String[] args) {
     Scanner sc= new Scanner(System.in);
 
-    ArrayList<Task> tasks= new ArrayList<>();
+    ArrayList<Task> tasks= loadTasks();
 while(true) {
     System.out.println("Enter task (-1 to stop): ");
     String taskName = sc.nextLine();
@@ -65,19 +110,27 @@ while(true) {
     if(taskName.equals("-1"))  break;
 
 System.out.println("Enter task Priority: ");
-String priority = sc.nextLine();
+String priority = normalizePriority(sc.nextLine());  //revise
 
 System.out.println("Enter task DeadLine(yyyy-MM-dd HH:mm): ");
 String deadlineStr = sc.nextLine();
 
-LocalDateTime deadline = LocalDateTime.parse(deadlineStr.replace(" ","T")); //revise
+try {
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+LocalDateTime deadline = LocalDateTime.parse(deadlineStr.trim(), formatter);
 
     tasks.add(new Task(taskName, priority, deadline));
+    saveTasks(tasks);
+}catch (Exception e) {                                                          // revise
+    System.out.println("Invalid date format. Use yyyy-MM-dd HH:mm");    
+continue;
 }
+}
+   
 
     while(true) {
         System.out.println("Enter your choice: " + "\n 1->Show all tasks" + "\n 2->Delete task" + "\n 3->Exit");
-        //int ch = sc.nextInt(); --why wrong?
+        
         int ch = Integer.parseInt(sc.nextLine());
 
         if(ch==1) {
